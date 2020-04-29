@@ -1,0 +1,76 @@
+25
+THE HITCHHIKERS GUIDE TO THE GALAXY
+Douglas Adams
+Available
+THIRTEEN REASONS WHY
+Jay Asher
+Available
+LION:A LONG WAY HOME
+Saroo Brierley
+Available
+THE HUNGER GAMES
+Suzanne Collins,Carolyn McCormick
+Available
+TALES OF THE UNEXPECTED
+Roald Dahl
+Available
+WHERE THE WILD THINGS ARE
+Maurice Sendak
+Available
+THE HOBBIT
+JRR Tolkien
+Unavailable
+TREASURE ISLAND
+Robert Louis Stephenson
+Available
+PETER PAN
+J.M.Barrie
+Available
+THE ADVENTURES OF HUCKLEBERRY FINN
+Mark Twain
+Available
+1984A
+George Orwell
+Available
+THE DIARY OF A YOUNG GIRL
+Anne Frank
+Available
+TO KILL A MOCKINGBIRD
+Harper Lee
+Available
+HAMLET
+William Shakespeare
+Available
+ROMEO AND JULIET
+William Shakespeare
+Available
+THE GIVING TREE
+Shel Silverstein
+Available
+LORD OF THE FLIES
+William Golding
+Available
+CHARLOTTE'S WEB
+E.B.White
+Available
+GONE WITH THE WIND
+Margaret Mitchell
+Available
+THE CAT IN THE HAT
+Dr.Seuss
+Available
+DRACULA
+Bram Stoker
+Available
+THE FAULT IN OUR STARS
+John Green
+Available
+AND THEN THERE WERE NONE
+Agatha Christie
+Available
+OLIVER TWIST
+Charles Dickens
+Unavailable
+THE GODFATHER
+Mario Puzo
+Available
