@@ -19,7 +19,7 @@ Maurice Sendak
 Available
 THE HOBBIT
 JRR Tolkien
-Unavailable
+Available
 TREASURE ISLAND
 Robert Louis Stephenson
 Available
@@ -70,7 +70,7 @@ Agatha Christie
 Available
 OLIVER TWIST
 Charles Dickens
-Unavailable
+Available
 THE GODFATHER
 Mario Puzo
 Available

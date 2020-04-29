@@ -1,89 +1,183 @@
-#Konnichiwa,ganbateh! O_O
 from tkinter import *
 import tkinter.font
 import datetime
 import tkinter.messagebox
 from datetime import timedelta
+import os
+import hashlib
+
+user_id = 1000000
 
 def login_in():
-	global id_input
-	global password_input
+	global id_input_login
+	global password_input_login
 	global login_menu
 
 	login_menu=Tk()
 	login_menu.wm_title("Login")
-	login_menu.minsize(250,80)
-	login_menu.maxsize(250,80)
+	login_menu.minsize(250,150)
+	login_menu.maxsize(250,150)
 	login_menu.resizable(0,0)
 	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
 
 	id_label=Label(login_menu,text="Your ID")
 	password_label=Label(login_menu,text="Password")
-	id_input=Entry(login_menu)
-	password_input=Entry(login_menu)
+	id_input_login=Entry(login_menu)
+	password_input_login=Entry(login_menu)
 	loginbutton1=Button(login_menu,command=login_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
+	registerbutton=Button(login_menu,command=register_in,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
+	password_input_login.config(show="*")
+
+	id_label.grid(row=0,sticky=E)
+	id_input_login.grid(row=0,column=1)
+	password_label.grid(row=1,sticky=E)
+	password_input_login.grid(row=1,column=1)
+	loginbutton1.grid(columnspan=2)
+	registerbutton.grid(columnspan=2)
+
+	login_menu.mainloop()
+
+#changed it from checking for each case hard-coded to a loop
+def login_check():
+	global id
+	id=id_input_login.get()
+	password=password_input_login.get()
+
+	if(id == 'admin' and password == 'admin'):
+		tkinter.messagebox.showinfo("Login","Greetings!Feedbacks from users are listed here")
+		feedback_read()
+
+	f1 = open ('index.txt', 'r')
+	
+	# salt = 2812738
+	# key = hashlib.pbkdf2_hmac(
+	# 	'sha256',
+	# 	password.encode('utf-8'),
+	# 	salt, 
+	# 	100000
+	# )
+
+	flag = False
+	for line in f1:
+		line = line.rstrip('\n')
+		words = line.split('|')
+		if(words[0] == id):
+			f2 = open ('Userprofile.txt', 'r')
+			pos = words[1]
+			f2.seek(int(pos))
+			l = f2.readline()
+			l = l.rstrip('\n')
+			word = l.split('|')
+			if(word[1] == password):
+				flag = True
+				tkinter.messagebox.showinfo("Login","Login Successful!")
+				login_menu.destroy()
+				Main_Menu()
+				break
+	if(flag == False):
+		tkinter.messagebox.showinfo("Login"," The student ID or Password that you have entered is incorrect.Please reenter")
+		return(login_in)
+
+
+def register_in():
+	global id_input
+	global name_input
+	global email_input
+	global password_input
+	global register_menu
+
+	register_menu=Tk()
+	register_menu.wm_title("Register")
+	register_menu.minsize(250,350)
+	register_menu.maxsize(250,350)
+	register_menu.resizable(0,0)
+	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
+
+	id_label=Label(register_menu,text="Your ID")
+	name_label=Label(register_menu,text="Full Name")
+	email_label=Label(register_menu,text="Email")
+	password_label=Label(register_menu,text="Password")
+	id_input=Entry(register_menu)
+	name_input=Entry(register_menu)
+	email_input=Entry(register_menu)
+	password_input=Entry(register_menu)
+	loginbutton1=Button(register_menu,command=login_in,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
+	registerbutton=Button(register_menu,command=register_check,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
 	password_input.config(show="*")
 
 	id_label.grid(row=0,sticky=E)
 	id_input.grid(row=0,column=1)
-	password_label.grid(row=1,sticky=E)
-	password_input.grid(row=1,column=1)
+	name_label.grid(row=1,sticky=E)
+	name_input.grid(row=1,column=1)
+	email_label.grid(row=2,sticky=E)
+	email_input.grid(row=2,column=1)
+	password_label.grid(row=3,sticky=E)
+	password_input.grid(row=3,column=1)
+	registerbutton.grid(columnspan=2)
 	loginbutton1.grid(columnspan=2)
 
-	login_menu.mainloop()
+	register_menu.mainloop()
 
-
-def login_check():
+def register_check():
 	global id
-	user_id = []
-	user_password = []
+	
+	# user_name = []
+	# user_password = []
 	id=id_input.get()
+	name=name_input.get()
+	email=email_input.get()
 	password=password_input.get()
-	f = open ('Userprofile.txt')
-	line = f.readline()
-	norecord = int(line)
-	z=0
-	verification=0
-	while line!="":
-		line = f.readline()
-		if z==0:
-			user_id.append(line.rstrip('\n'))
-			z=z+1
 
-		elif z==1:
-			user_password.append(line.rstrip('\n'))
-			z=0
+	f1 = open('index.txt', 'r')
+	#if id is already present then ask to login
+	for line in f1:
+		if line[:7] == id:
+			tkinter.messagebox.showinfo("Register","Already registered")
+			register_menu.destroy()
+			#since login window will already be open.. it's not necessary to open it again
+	f1.close()
 
-	while True:
-		if  user_id[0] == id and user_password[0] == password :
-			verification=2
-			break
+	# salt = 2812738 # a random number
+	# key = hashlib.pbkdf2_hmac(
+	# 	'sha256', # The hash digest algorithm for HMAC
+	# 	password.encode('utf-8'), # Convert the password to bytes
+	# 	salt, # Provide the salt
+	# 	100000 # 100,000 iterations of SHA-256 
+	# )
 
-		elif user_id[1] == id and user_password[1] == password:
-			verification=1
-			break
+	f2 = open ('Userprofile.txt', 'a')
+	pos = f2.tell()
+	f3 = open ('index.txt', 'a')
+	#store hashed passwords which is key
+	buf = id + '|' + password + '|' + name + '|' + email + '#'
+	f2.write(buf)
+	f2.write('\n')
+	buf = id + '|' + str(pos)
+	f3.write(buf)
+	f3.write('\n')
+	# key_sort('index.txt')
+	f3.close()
+	f2.close()
+	tkinter.messagebox.showinfo("Register","Registration Successful!")
+	register_menu.destroy()
 
-		elif user_id[2]== id and user_password[2] == password:
-			verification=1
-			break
+def key_sort(fname):
+	t=list()
+	fin=open(fname,'r')
+	for line in fin:
+		line=line.rstrip('\n')
+		words=line.split('|')
+		t.append((words[0],words[1])) #0-key,1-other, sortin based on key.
+		#print(t)
+	fin.close()
+	t.sort()
+	with open("temp.txt",'w') as fout:
+		for pkey,addr in t:
+			pack=pkey+"|"+addr
+			fout.write(pack+'\n')
+	os.remove(fname)
+	os.rename("temp.txt",fname)
 
-		elif user_id[3] == id and user_password[3] == password :
-			verification=1
-			break
-
-		elif user_id[4] == id and user_password[4] == password:
-			verification=1
-			break
-		else:
-			tkinter.messagebox.showinfo("Login"," The student ID or Password that you have entered is incorrect.Please reenter")
-			return(login_in)
-	if verification==1:
-		tkinter.messagebox.showinfo("Login","Login Successful!")
-		login_menu.destroy()
-		Main_Menu()
-	else:
-		tkinter.messagebox.showinfo("Login","Greetings!Feedbacks from users are listed here")
-		feedback_read()
 
 def Main_Menu():
 	base = Tk()
@@ -95,6 +189,7 @@ def Main_Menu():
 	in_font = tkinter.font.Font(family='Lucida Calligraphy', size=15, weight=tkinter.font.BOLD)
 	current_time1=datetime.datetime.now()
 	current_time=str(current_time1)
+
 	#Bunch of labels
 	status = Label(base,text=("Date and time logged in: " + current_time),bd=1,relief=SUNKEN,anchor=W,bg='light pink')
 	orionLabel=Label(base, text="CENTRAL LIBRARY",bg='dark orange',font=("Castellar", "50","bold","italic","underline"),fg="black")
@@ -115,19 +210,15 @@ def Main_Menu():
 	borrow_but=Button(bottomFrame,bg="black",fg="white",text="Borrow books",font=in_font,height=5,width=15,command=borrow_in)
 	return_but=Button(bottomFrame,bg="dark orange",text="Return books",font=in_font,height=5,width=15,command=return_in)
 	search_but=Button(bottomFrame,bg="black",fg="white",text="Search for books",font=in_font,height=5,width=15,command=search_in)
-	store_but=Button(bottomFrame,bg="dark orange",text="Shop",font=in_font,height=5,width=15,command=shop_in)
-	feedback_but=Button(bottomFrame,bg="black",fg="white",text="Feedback",font=in_font,height=5,width=15,command=feedback_in)
+	feedback_but=Button(bottomFrame,bg="dark orange",fg="white",text="Feedback",font=in_font,height=5,width=15,command=feedback_in)
 
 	#Positioning of buttons
 	borrow_but.pack(side=LEFT)
 	return_but.pack(side=LEFT)
 	search_but.pack(side=LEFT)
-	store_but.pack(side=LEFT)
 	feedback_but.pack(side=LEFT)
 
 	base.mainloop()
-
-
 
 
 def borrow_in():
@@ -354,180 +445,6 @@ def return_check():
 	else:
 		tkinter.messagebox.showinfo("Return","The book that you had entered is invalid.Please reenter a different book")
 		return_menu.lift()
-
-def shop_in():
-	global shop_entry1
-	global shop_entry2
-	global shop_entry3
-	global shop_entry4
-	global shop_entry5
-	global shop_menu
-
-	#The shop main menu
-	shop_menu=Tk()
-	shop_menu.wm_title("Shop")
-	shop_menu.resizable(0,0)
-	tkinter.messagebox.showinfo("Shop","Get 10% off from your total purchase when you purchase more than RM50")
-	shop_menu.lift()
-
-	f=open("item.txt","r")
-	line=f.read().splitlines()
-	f.close()
-	shop_menu.minsize(350,300)
-	shop_menu.maxsize(350,300)
-
-	#Defining variables >.<
-	itemleft1=int(line[0])
-	itemleft2=int(line[1])
-	itemleft3=int(line[2])
-	itemleft4=int(line[3])
-	itemleft5=int(line[4])
-
-	#These strings are meant to be placed in the listbox "shop_list"
-	kitemleft1=str(itemleft1)
-	kitemleft2=str(itemleft2)
-	kitemleft3=str(itemleft3)
-	kitemleft4=str(itemleft4)
-	kitemleft5=str(itemleft5)
-
-	#Creating listbox,entries,labels and "purchase" button
-	shop_list=Listbox(shop_menu,width=60,height=7)
-	shop_button1=Button(shop_menu,text="Purchase",command=shop_in_check,bg="dark orange")
-	shop_entry1=Entry(shop_menu,width=5)
-	shop_label1=Label(shop_menu,text="MMU T-Shirt")
-	shop_entry2=Entry(shop_menu,width=5)
-	shop_label2=Label(shop_menu,text="MMU lanyard")
-	shop_entry3=Entry(shop_menu,width=5)
-	shop_label3=Label(shop_menu,text="MMU Student Handbook")
-	shop_entry4=Entry(shop_menu,width=5)
-	shop_label4=Label(shop_menu,text="MMU Student Card")
-	shop_entry5=Entry(shop_menu,width=5)
-	shop_label5=Label(shop_menu,text="MMU Academic Calendar")
-	shop_label6=Label(shop_menu,text="Quantity")
-
-	#Postioning listbox,entries,labels and "purchase" button
-	shop_list.grid(rowspan=7,columnspan=60)
-	shop_entry1.grid(row=8,column=3)
-	shop_entry2.grid(row=9,column=3)
-	shop_entry3.grid(row=10,column=3)
-	shop_entry4.grid(row=11,column=3)
-	shop_entry5.grid(row=12,column=3)
-	shop_label1.grid(row=8,column=2,sticky=E)
-	shop_label2.grid(row=9,column=2,sticky=E)
-	shop_label3.grid(row=10,column=2,sticky=E)
-	shop_label4.grid(row=11,column=2,sticky=E)
-	shop_label5.grid(row=12,column=2,sticky=E)
-	shop_label6.grid(row=7,column=3)
-	shop_button1.grid(row=13,column=3)
-
-	#Inserting stuff into the listbox >.<
-	shop_list.insert(0,"No | Item |                                                | Price                  | Stocks left|")
-	shop_list.insert(1,"1.     MMU T-shirt                                     RM37.90		              "+kitemleft1)
-	shop_list.insert(2,"2.     MMU lanyard                                   RM1.80			                 "+kitemleft2)
-	shop_list.insert(3,"3.     MMU Student Handbook               RM10.50			              "+kitemleft3)
-	shop_list.insert(4,"4.     MMU Student Card                        RM50.00			                "+kitemleft4)
-	shop_list.insert(5,"5.     MMU Academic Calendar              RM5.30			                 "+kitemleft5)
-
-	shop_menu.mainloop()
-
-def shop_in_check(): #This module is to check if the user's input is a valid integer or not
-	global quantity1
-	global quantity2
-	global quantity3
-	global quantity4
-	global quantity5
-
-	try:
-		quantity1=(shop_entry1.get())
-		quantity1=int(quantity1)
-		quantity2=(shop_entry2.get())
-		quantity2=int(quantity2)
-		quantity3=(shop_entry3.get())
-		quantity3=int(quantity3)
-		quantity4=(shop_entry4.get())
-		quantity4=int(quantity4)
-		quantity5=(shop_entry5.get())
-		quantity5=int(quantity5)
-	except ValueError:
-		tkinter.messagebox.showinfo("Shop","One or more of your entries is not a valid input.Please reenter :D ")
-		shop_menu.lift()
-		return(shop_in)
-
-	shop_check()
-
-
-def shop_check():
-	totalprice=0
-	f=open("item.txt","r")
-	line=f.read().splitlines()
-	f.close()
-	price1=quantity1*37.90
-	itemleft1=int(line[0])-quantity1
-	if itemleft1<0:
-		itemleft1=itemleft1+quantity1
-		price1=0
-		tkinter.messagebox.showinfo("Shop","Sorry it seems like we don't have enough MMU T-Shirt in stock.We apologize for the inconvenience caused")
-		shop_menu.lift()
-		return(shop_in)
-	price2=quantity2*1.80
-	itemleft2=int(line[1])-quantity2
-	if itemleft2<0:
-		itemleft2=itemleft2+quantity2
-		price2=0
-		tkinter.messagebox.showinfo("Shop","Sorry it seems like we don't have enough MMU lanyard in stock.We apologize for the inconvenience caused")
-		shop_menu.lift()
-		return(shop_in)
-	price3=quantity3*10.50
-	itemleft3=int(line[2])-quantity3
-	if itemleft3<0:
-		itemleft3=itemleft3+quantity3
-		price3=0
-		tkinter.messagebox.showinfo("Shop","Sorry it seems like we don't have enough MMU Student Handbook in stock.We apologize for the inconvenience caused")
-		shop_menu.lift()
-		return(shop_in)
-	price4=quantity4*50.00
-	itemleft4=int(line[3])-quantity4
-	if itemleft4<0:
-		itemleft4=itemleft4+quantity4
-		price4=0
-		tkinter.messagebox.showinfo("Shop","Sorry it seems like we don't have enough MMU Student Card in stock.We apologize for the inconvenience caused")
-		shop_menu.lift()
-		return(shop_in)
-	price5=quantity5*5.30
-	itemleft5=int(line[4])-quantity5
-	if itemleft5<0:
-		itemleft5=itemleft5+quantity5
-		price5=0
-		tkinter.messagebox.showinfo("Shop","Sorry it seems like we don't have enough MMU Academic Calendar in stock.We apologize for the inconvenience caused")
-		shop_menu.lift()
-		return(shop_in)
-	totalprice=totalprice+price1+price2+price3+price4+price5
-	if totalprice>50:
-		totalprice=totalprice-(totalprice*1/10)
-	Done=tkinter.messagebox.askyesno("Shop","Do you wish to checkout?")
-	if Done== True:
-		pass
-	else:
-		tkinter.messagebox.showinfo("Shop","Please fill the quantity(s) again.")
-		totalprice=0
-		itemleft1=itemleft1+quantity1
-		itemleft2=itemleft2+quantity2
-		itemleft3=itemleft3+quantity3
-		itemleft4=itemleft4+quantity4
-		itemleft5=itemleft5+quantity5
-		shop_menu.lift()
-		return (shop_in)
-
-	f=open ("item.txt","w+")
-	f.write(str(itemleft1)+'\n')
-	f.write(str(itemleft2)+'\n')
-	f.write(str(itemleft3)+'\n')
-	f.write(str(itemleft4)+'\n')
-	f.write(str(itemleft5)+'\n')
-	f.close()
-	totalprice=str(totalprice)
-	tkinter.messagebox.showinfo("Shop","Your bill and item(s) is ready."+"Payment= RM"+totalprice+" .Kindly collect your items at our service counter during working hours.Thank you.")
-	shop_menu.destroy()
 
 def search_in():
 	global search_entry
