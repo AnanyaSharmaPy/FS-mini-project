@@ -6,7 +6,7 @@ from datetime import timedelta
 import os
 import hashlib
 
-user_id = 1000000
+# user_id = 1000000
 
 def login_in():
 	global id_input_login
@@ -26,6 +26,7 @@ def login_in():
 	password_input_login=Entry(login_menu)
 	loginbutton1=Button(login_menu,command=login_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
 	registerbutton=Button(login_menu,command=register_in,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
+	feedbackbutton=Button(login_menu,command=feedback_read,text=" Feedback ",bg='blue',height=1,width=7,font=k_font)
 	password_input_login.config(show="*")
 
 	id_label.grid(row=0,sticky=E)
@@ -34,6 +35,7 @@ def login_in():
 	password_input_login.grid(row=1,column=1)
 	loginbutton1.grid(columnspan=2)
 	registerbutton.grid(columnspan=2)
+	feedbackbutton.grid(columnspan=2)
 
 	login_menu.mainloop()
 
@@ -43,9 +45,9 @@ def login_check():
 	id=id_input_login.get()
 	password=password_input_login.get()
 
-	if(id == 'admin' and password == 'admin'):
-		tkinter.messagebox.showinfo("Login","Greetings!Feedbacks from users are listed here")
-		feedback_read()
+	# if(id == 'admin' and password == 'admin'):
+	# 	tkinter.messagebox.showinfo("Login","Greetings!Feedbacks from users are listed here")
+	# 	feedback_read()
 
 	f1 = open ('index.txt', 'r')
 	
@@ -161,22 +163,22 @@ def register_check():
 	tkinter.messagebox.showinfo("Register","Registration Successful!")
 	register_menu.destroy()
 
-def key_sort(fname):
-	t=list()
-	fin=open(fname,'r')
-	for line in fin:
-		line=line.rstrip('\n')
-		words=line.split('|')
-		t.append((words[0],words[1])) #0-key,1-other, sortin based on key.
-		#print(t)
-	fin.close()
-	t.sort()
-	with open("temp.txt",'w') as fout:
-		for pkey,addr in t:
-			pack=pkey+"|"+addr
-			fout.write(pack+'\n')
-	os.remove(fname)
-	os.rename("temp.txt",fname)
+# def key_sort(fname):
+# 	t=list()
+# 	fin=open(fname,'r')
+# 	for line in fin:
+# 		line=line.rstrip('\n')
+# 		words=line.split('|')
+# 		t.append((words[0],words[1])) #0-key,1-other, sortin based on key.
+# 		#print(t)
+# 	fin.close()
+# 	t.sort()
+# 	with open("temp.txt",'w') as fout:
+# 		for pkey,addr in t:
+# 			pack=pkey+"|"+addr
+# 			fout.write(pack+'\n')
+# 	os.remove(fname)
+# 	os.rename("temp.txt",fname)
 
 
 def Main_Menu():
