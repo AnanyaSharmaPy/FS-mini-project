@@ -27,6 +27,7 @@ def login_in():
 	loginbutton1=Button(login_menu,command=login_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
 	registerbutton=Button(login_menu,command=register_in,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
 	feedbackbutton=Button(login_menu,command=feedback_read,text=" Feedback ",bg='blue',height=1,width=7,font=k_font)
+	adminbutton=Button(login_menu,command=admin_in,text=" Admin Login ",bg='light blue',height=1,width=10,font=k_font)
 	password_input_login.config(show="*")
 
 	id_label.grid(row=0,sticky=E)
@@ -36,6 +37,7 @@ def login_in():
 	loginbutton1.grid(columnspan=2)
 	registerbutton.grid(columnspan=2)
 	feedbackbutton.grid(columnspan=2)
+	adminbutton.grid(columnspan=2)
 
 	login_menu.mainloop()
 
@@ -50,12 +52,12 @@ def login_check():
 	# 	feedback_read()
 
 	f1 = open ('index.txt', 'r')
-	
+
 	# salt = 2812738
 	# key = hashlib.pbkdf2_hmac(
 	# 	'sha256',
 	# 	password.encode('utf-8'),
-	# 	salt, 
+	# 	salt,
 	# 	100000
 	# )
 
@@ -122,7 +124,7 @@ def register_in():
 
 def register_check():
 	global id
-	
+
 	# user_name = []
 	# user_password = []
 	id=id_input.get()
@@ -144,7 +146,7 @@ def register_check():
 	# 	'sha256', # The hash digest algorithm for HMAC
 	# 	password.encode('utf-8'), # Convert the password to bytes
 	# 	salt, # Provide the salt
-	# 	100000 # 100,000 iterations of SHA-256 
+	# 	100000 # 100,000 iterations of SHA-256
 	# )
 
 	f2 = open ('Userprofile.txt', 'a')
@@ -179,6 +181,183 @@ def register_check():
 # 			fout.write(pack+'\n')
 # 	os.remove(fname)
 # 	os.rename("temp.txt",fname)
+
+def admin_in():
+		global id_admin
+		global password_admin
+		global admin_menu
+
+		admin_menu=Tk()
+		admin_menu.wm_title("Admin")
+		admin_menu.minsize(250,350)
+		admin_menu.maxsize(250,350)
+		admin_menu.resizable(0,0)
+		k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
+
+		admin_label=Label(admin_menu,text="Admin ID")
+		admin_password_label=Label(admin_menu,text="Password")
+		id_admin=Entry(admin_menu)
+		password_admin=Entry(admin_menu)
+		loginbutton1=Button(admin_menu,command=admin_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
+		#registerbutton=Button(admin_menu,command=register_check,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
+		password_admin.config(show="*")
+
+		admin_label.grid(row=0,sticky=E)
+		id_admin.grid(row=0,column=1)
+		admin_password_label.grid(row=3,sticky=E)
+		password_admin.grid(row=3,column=1)
+		#registerbutton.grid(columnspan=2)
+		loginbutton1.grid(columnspan=2)
+
+		admin_menu.mainloop()
+
+def admin_check():
+	global admin_id
+
+	# user_name = []
+	# user_password = []
+	admin_id=id_admin.get()
+	admin_password=password_admin.get()
+
+	if admin_id=="admin" and admin_password=="admin":
+		tkinter.messagebox.showinfo("Login","Admin Login Successful!")
+		admin_menu.destroy()
+		Admin_Opt()
+	else:
+		tkinter.messagebox.showinfo("Login","Admin id or password INCORRECT. Please reenter")
+
+def Admin_Opt():
+		global opt_menu
+
+		opt_menu=Tk()
+		opt_menu.wm_title("Admin_menu")
+		opt_menu.minsize(240,80)
+		opt_menu.maxsize(240,80)
+		opt_menu.resizable(0,0)
+		k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
+
+		addbutton=Button(opt_menu,command=add_book,text=" Add books ",bg='light pink',height=1,width=12,font=k_font)
+		delbutton=Button(opt_menu,command=del_book,text=" Remove books ",bg='light blue',height=1,width=12,font=k_font)
+
+		addbutton.grid(row=4,column=4)
+		delbutton.grid(row=4,column=9)
+
+		opt_menu.mainloop()
+
+def add_book():
+	global book_name
+	global author_name
+	global add_menu
+
+	add_menu=Tk()
+	add_menu.wm_title("Add")
+	add_menu.minsize(250,350)
+	add_menu.maxsize(250,350)
+	add_menu.resizable(0,0)
+	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
+
+	book_label=Label(add_menu,text="Book Name")
+	author_label=Label(add_menu,text="Author Name")
+	book_name=Entry(add_menu)
+	author_name=Entry(add_menu)
+	addbutton1=Button(add_menu,command=add_check,text=" Add book ",bg='dark orange',height=1,width=10,font=k_font)
+
+	book_label.grid(row=0,sticky=E)
+	book_name.grid(row=0,column=1)
+	author_label.grid(row=1,sticky=E)
+	author_name.grid(row=1,column=1)
+	addbutton1.grid(columnspan=2)
+
+	add_menu.mainloop()
+
+def add_check():
+	global b_id
+
+	# user_name = []
+	# user_password = []
+	b_id=book_name.get()
+	a_id=author_name.get()
+
+	f11 = open('Bindex.txt', 'r')
+	#if id is already present then ask to login
+	for line in f11:
+		if line[:] == b_id:
+			tkinter.messagebox.showinfo("Book","Book already present")
+			add_menu.destroy()
+			#since login window will already be open.. it's not necessary to open it again
+	f11.close()
+
+	f22 = open ('BData.txt', 'a')
+	pos = f22.tell()
+	f33 = open ('Bindex.txt', 'a')
+	#store hashed passwords which is key
+	buf = b_id + '|' + a_id + '|' + 'Available' + '|' + '#'
+	f22.write(buf)
+	f22.write('\n')
+	buf = b_id + '|' + str(pos)
+	f33.write(buf)
+	f33.write('\n')
+	# key_sort('index.txt')
+	f33.close()
+	f22.close()
+	tkinter.messagebox.showinfo("Add","Book added Successfully!")
+	add_menu.destroy()
+
+
+
+def del_book():
+	global b_name
+	global del_menu
+
+	del_menu=Tk()
+	del_menu.wm_title("Delete")
+	del_menu.minsize(250,350)
+	del_menu.maxsize(250,350)
+	del_menu.resizable(0,0)
+	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
+
+	b_label=Label(del_menu,text="Book Name")
+	b_name=Entry(del_menu)
+	delbutton1=Button(del_menu,command=del_check,text=" Remove book ",bg='dark orange',height=1,width=10,font=k_font)
+
+	b_label.grid(row=0,sticky=E)
+	b_name.grid(row=0,column=1)
+	delbutton1.grid(columnspan=2)
+
+	del_menu.mainloop()
+
+def del_check():
+
+		global del_id
+		del_id=b_name.get()
+
+
+		f5 = open ('Bindex.txt', 'r')
+
+		flag = False
+		for line in f5:
+			line = line.rstrip('\n')
+			words = line.split('|')
+			if(words[0] == del_id):
+				f2 = open ('BData.txt', 'r')
+				pos = words[1]
+				f2.seek(int(pos))
+				l = f2.readline()
+				l = l.rstrip('\n')
+				word = l.split('|')
+				if(word[0] == b_name):
+					flag = True
+					tkinter.messagebox.showinfo("Remove","Book found and removed it successfully!")
+					#yet to write del func
+					login_menu.destroy()
+					admin_menu.destroy()
+					break
+		if(flag == False):
+			tkinter.messagebox.showinfo("Remove"," Book does not exist.Please reenter")
+			return(del_book)
+
+
+
 
 
 def Main_Menu():
