@@ -15,8 +15,8 @@ def login_in():
 
 	login_menu=Tk()
 	login_menu.wm_title("Login")
-	login_menu.minsize(250,150)
-	login_menu.maxsize(250,150)
+	login_menu.minsize(300,200)
+	login_menu.maxsize(300,200)
 	login_menu.resizable(0,0)
 	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
 
@@ -199,14 +199,12 @@ def admin_in():
 		id_admin=Entry(admin_menu)
 		password_admin=Entry(admin_menu)
 		loginbutton1=Button(admin_menu,command=admin_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
-		#registerbutton=Button(admin_menu,command=register_check,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
 		password_admin.config(show="*")
 
 		admin_label.grid(row=0,sticky=E)
 		id_admin.grid(row=0,column=1)
 		admin_password_label.grid(row=3,sticky=E)
 		password_admin.grid(row=3,column=1)
-		#registerbutton.grid(columnspan=2)
 		loginbutton1.grid(columnspan=2)
 
 		admin_menu.mainloop()
@@ -222,6 +220,7 @@ def admin_check():
 	if admin_id=="admin" and admin_password=="admin":
 		tkinter.messagebox.showinfo("Login","Admin Login Successful!")
 		admin_menu.destroy()
+		login_menu.destroy()
 		Admin_Opt()
 	else:
 		tkinter.messagebox.showinfo("Login","Admin id or password INCORRECT. Please reenter")
@@ -231,16 +230,18 @@ def Admin_Opt():
 
 		opt_menu=Tk()
 		opt_menu.wm_title("Admin_menu")
-		opt_menu.minsize(240,80)
-		opt_menu.maxsize(240,80)
+		opt_menu.minsize(285,120)
+		opt_menu.maxsize(285,120)
 		opt_menu.resizable(0,0)
 		k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
 
 		addbutton=Button(opt_menu,command=add_book,text=" Add books ",bg='light pink',height=1,width=12,font=k_font)
 		delbutton=Button(opt_menu,command=del_book,text=" Remove books ",bg='light blue',height=1,width=12,font=k_font)
+		backbutton=Button(opt_menu,command=login_in,text=" Log out ",bg='light blue',height=1,width=12,font=k_font)
 
 		addbutton.grid(row=4,column=4)
 		delbutton.grid(row=4,column=9)
+		backbutton.grid(row=10,column=6)
 
 		opt_menu.mainloop()
 
@@ -331,32 +332,36 @@ def del_check():
 		global del_id
 		del_id=b_name.get()
 
+		flag=False
+		flag1=False
+		f5=open('Bindex.txt','r')
+		lines=f5.readlines()
+		f6=open('Bindex.txt','w')
+		for line in lines:
+			l=line.split('|')
+			if l[0]==del_id:
+				flag1=True
+				continue
+			else:
+				f6.write(line)
 
-		f5 = open ('Bindex.txt', 'r')
+		f7=open('BData.txt','r')
+		lines1=f7.readlines()
+		f8=open('BData.txt','w')
+		for line1 in lines1:
+			l=line1.split('|')
+			if l[0]==del_id:
+				flag=True
+				continue
+			else:
+				f8.write(line1)
+		if flag==True and flag1==True:
+			tkinter.messagebox.showinfo("Delete","Book Successfully removed")
+			del_menu.destroy()
 
-		flag = False
-		for line in f5:
-			line = line.rstrip('\n')
-			words = line.split('|')
-			if(words[0] == del_id):
-				f2 = open ('BData.txt', 'r')
-				pos = words[1]
-				f2.seek(int(pos))
-				l = f2.readline()
-				l = l.rstrip('\n')
-				word = l.split('|')
-				if(word[0] == b_name):
-					flag = True
-					tkinter.messagebox.showinfo("Remove","Book found and removed it successfully!")
-					#yet to write del func
-					login_menu.destroy()
-					admin_menu.destroy()
-					break
-		if(flag == False):
-			tkinter.messagebox.showinfo("Remove"," Book does not exist.Please reenter")
+		if flag==False and flag1==False:
+			tkinter.messagebox.showinfo("Delete","Book not present.Please reenter")
 			return(del_book)
-
-
 
 
 
@@ -675,6 +680,7 @@ def search_check():
 		search_menu2.mainloop()
 	else:
 		tkinter.messagebox.showinfo("Search","Sorry,this book does not exist in our database")
+
 
 def feedback_in():
 	global feedback_bar
