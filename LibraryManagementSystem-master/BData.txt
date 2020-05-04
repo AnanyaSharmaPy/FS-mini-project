@@ -1,5 +1,6 @@
-the monk who sold his ferrari|robin sharma|Available|#
-life is what you make it|preethi shenoy|Available|#
-annana nenapu|poorna chandra tejaswi|Available|#
-three mistakes of my life|chetan bhagat|Available|#
-thirteen reasons why|jay asher|Available|#
+THE HITCHHIKERS GUIDE TO THE GALAXY|Douglas Adams|Y|#
+THIRTEEN REASONS WHY|Jay Asher|N|#
+LION:A LONG WAY HOME|Saroo Brierley|N|#
+THE HUNGER GAMES|Suzanne Collins,Carolyn McCormick|N|#
+TALES OF THE UNEXPECTED|Roald Dahl|Y|#
+WHERE THE WILD THINGS ARE|Maurice Sendak|Y|#
