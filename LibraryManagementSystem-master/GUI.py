@@ -118,6 +118,11 @@ def register_check():
 	email=email_input.get()
 	password=password_input.get()
 
+	if len(id)==0 or len(name) == 0 or len(email) == 0 or len(password) == 0:
+		tkinter.messagebox.showinfo("Register","You left one or more fields blank O_O")
+		register_menu.lift()
+		return(register_in)
+
 	f1 = open('index.txt', 'r')
 	for line in f1:
 		line = line.rstrip('\n')
@@ -253,6 +258,14 @@ def add_check():
 	b_id=book_name.get().upper()
 	a_id=author_name.get()
 
+	if len(b_id)==0:
+		tkinter.messagebox.showinfo("Add Book","You did not type a book name O_O")
+		add_menu.lift()
+		return(add_book)
+
+	if len(a_id) == 0:
+		a_id = "Anonymous"
+
 	f11 = open('Bindex.txt', 'r')
 	for line in f11:
 		line = line.rstrip('\n')
@@ -302,6 +315,11 @@ def del_check():
 
 	global del_id
 	del_id=b_name.get().upper()
+
+	if len(del_id)==0:
+		tkinter.messagebox.showinfo("Delete Book","You did not type anything O_O")
+		del_menu.lift()
+		return(del_book)
 
 	flag=False
 
@@ -438,6 +456,11 @@ def borrow_check():
 	bbook=borrow_entry1.get().upper()
 	flag = 0
 
+	if len(bbook) == 0:
+		tkinter.messagebox.showinfo("Borrow","You did not type anything O_O")
+		borrow_menu.lift()
+		return(borrow_in)
+
 	for l1 in f1:
 		l1 = l1.rstrip('\n')
 		w1 = l1.split('|')
@@ -560,6 +583,11 @@ def return_check():
 	date = dt.date.today()
 	bbook = return_entry1.get().upper()
 
+	if len(bbook) == 0:
+		tkinter.messagebox.showinfo("Return","You did not type anything O_O")
+		return_menu.lift()
+		return(return_in)
+
 	if(bbook in record_verification):
 		f = open('Bindex.txt', 'r')
 		for l in f:
@@ -626,6 +654,10 @@ def search_check():
 	f1 = open ('Bindex.txt', 'r')
 	search_word=search_entry.get().upper()
 	search_menu.destroy()
+
+	if len(search_word) == 0:
+		tkinter.messagebox.showinfo("Search","You did not type anything O_O")
+		return(search_in)
 	
 	pos = -1
 	for l in f1:
