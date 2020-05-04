@@ -1,24 +1,6 @@
-GULLIVER'S TRAVELS|Jonathan Swift|Y|#
-DAVID COPPERFIELD|Charles Dickens|Y|#
-LITTLE WOMEN|Louisa M. Alcott|Y|#
-THE RAINBOW|D. H. Lawrence|Y|#
-NINETEEN EIGHTY-FOUR|George Orwell|Y|#
- THE LORD OF THE RINGS|J. R. R. Tolkien|Y|#
-LOLITA|Vladimir Nabokov|Y|#
-THINGS FALL APART|Chinua Achebe|Y|#
-TO KILL A MOCKINGBIRD|Harper Lee|Y|#
-THE GREAT GATSBY|F. Scott Fitzgerald|Y|#
-TO THE LIGHTHOUSE|Virginia Woolf|Y|#
-WAR AND PEACE| Leo Tolstoy|Y|#
-MOBY-DICK|Herman Melville|Y|#
-EMMA|Jane Austen|Y|#
-THE MOONSTONE| Wilkie Collins|Y|#
-KIDNAPPED|Robert Louis Stevenson|Y|#
-DRACULA|Bram Stoker|Y|#
-ULYSSES|James Joyce|Y|#
-LORD OF THE FLIES| William Golding |Y|#
-CATCH-22|Joseph Heller|Y|#
-THE ALCHEMIST|Paulo Coelho|Y|#
-FIFTY SHADES OF GREY|EL James|Y|#
-A PASSAGE TO INDIA|E.M Forster|Y|#
-INVISIBLE MAN|Ralph Ellison|Y|#
+THE HITCHHIKERS GUIDE TO THE GALAXY|Douglas Adams|Y|#
+THIRTEEN REASONS WHY|Jay Asher|N|#
+LION:A LONG WAY HOME|Saroo Brierley|Y|#
+THE HUNGER GAMES|Suzanne Collins,Carolyn McCormick|N|#
+TALES OF THE UNEXPECTED|Roald Dahl|Y|#
+WHERE THE WILD THINGS ARE|Maurice Sendak|Y|#
