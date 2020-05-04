@@ -24,9 +24,9 @@ def login_in():
 	id_input_login=Entry(login_menu)
 	password_input_login=Entry(login_menu)
 	loginbutton1=Button(login_menu,command=login_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
-	registerbutton=Button(login_menu,command=register_in,text=" Register ",bg='dark blue',height=1,width=7,font=k_font)
+	registerbutton=Button(login_menu,command=register_in,text=" Register ",bg='light green',height=1,width=7,font=k_font)
 	feedbackbutton=Button(login_menu,command=feedback_read,text=" Feedback ",bg='light blue',height=1,width=7,font=k_font)
-	adminbutton=Button(login_menu,command=admin_in,text=" Admin Login ",bg='dark blue',height=1,width=10,font=k_font)
+	adminbutton=Button(login_menu,command=admin_in,text=" Admin Login ",bg='light green',height=1,width=10,font=k_font)
 	password_input_login.config(show="*")
 
 	id_label.grid(row=0,sticky=E)
@@ -149,17 +149,17 @@ def register_check():
 
 def hash_password(password):
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
-    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'), 
+    pwdhash = hashlib.pbkdf2_hmac('sha512', password.encode('utf-8'),
                                 salt, 100000)
     pwdhash = binascii.hexlify(pwdhash)
     return (salt + pwdhash).decode('ascii')
- 
+
 def verify_password(stored_password, provided_password):
     salt = stored_password[:64]
     stored_password = stored_password[64:]
-    pwdhash = hashlib.pbkdf2_hmac('sha512', 
-                                  provided_password.encode('utf-8'), 
-                                  salt.encode('ascii'), 
+    pwdhash = hashlib.pbkdf2_hmac('sha512',
+                                  provided_password.encode('utf-8'),
+                                  salt.encode('ascii'),
                                   100000)
     pwdhash = binascii.hexlify(pwdhash).decode('ascii')
     return pwdhash == stored_password
@@ -393,8 +393,8 @@ def borrow_in():
 	borrow_menu=Tk()
 
 	borrow_menu.wm_title("Borrow")
-	borrow_menu.minsize(900,500)
-	borrow_menu.maxsize(900,500)
+	borrow_menu.minsize(900,550)
+	borrow_menu.maxsize(900,550)
 	borrow_menu.resizable(0,0)
 
 	Title = []
@@ -476,32 +476,32 @@ def borrow_check():
 				f2.seek(int(w1[1]))
 				f2.write(l3)
 				tkinter.messagebox.showinfo("Borrow","The book you have selected has been successfully borrowed. Please return it by:" +'\n'+ str(enddate) )
-				
+
 				buf = id + '|' + bbook + '|#\n'
 				f3 = open('Record.txt', 'a')
 				f3.write(buf)
 				f3.close()
-				
-				# Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
-				# if Done2==True:
-				# 	borrow_menu.destroy()
-				# 	borrow_in()
-				# else:
-				borrow_menu.destroy()
+				f2.close()
+				Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
+				if Done2==True:
+				 	borrow_menu.destroy()
+				 	borrow_in()
+				else:
+					borrow_menu.destroy()
 				break
 			else:
 				tkinter.messagebox.showinfo("Borrow","This book is currently unavailable, please select another book")
 				borrow_menu.lift()
 				break
 
-			f2.close()
-			
+			#f2.close()
+
 	if(flag == 0):
 		tkinter.messagebox.showinfo("Borrow","The book that you had entered is not in our database,sorry,please enter a different book")
 		borrow_menu.lift()
 	f1.close()
 
-	
+
 def return_in():
 	global return_entry1
 	global return_menu
@@ -542,7 +542,7 @@ def return_in():
 			f1.close()
 			f2.close()
 	f.close()
-	
+
 	return_list=Listbox(return_menu,height=50,width=50)
 	return_list2=Listbox(return_menu,height=50,width=50)
 	return_list3=Listbox(return_menu,height=50,width=50)
@@ -658,7 +658,7 @@ def search_check():
 	if len(search_word) == 0:
 		tkinter.messagebox.showinfo("Search","You did not type anything O_O")
 		return(search_in)
-	
+
 	pos = -1
 	for l in f1:
 		l = l.rstrip('\n')
@@ -683,7 +683,7 @@ def search_check():
 			else:
 				availability = 'Unavailable'
 			f2.close()
-			
+
 			search_result.insert(1,"Name:" + book)
 			search_result.insert(2,"Author:" +author)
 			search_result.insert(3,"Availability:" +availability)
