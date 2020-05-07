@@ -64,8 +64,9 @@ def login_check():
 				login_menu.destroy()
 				Main_Menu()
 				break
+			f2.close()
 	f1.close()
-	f2.close()
+	
 	if(flag == False):
 		tkinter.messagebox.showinfo("Login"," The student ID or Password that you have entered is incorrect.Please reenter")
 		return(login_in)
@@ -181,14 +182,14 @@ def admin_in():
 		admin_password_label=Label(admin_menu,text="Password")
 		id_admin=Entry(admin_menu)
 		password_admin=Entry(admin_menu)
-		loginbutton1=Button(admin_menu,command=admin_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
+		loginbutton2=Button(admin_menu,command=admin_check,text=" Login ",bg='light blue',height=1,width=7,font=k_font)
 		password_admin.config(show="*")
 
 		admin_label.grid(row=0,sticky=E)
 		id_admin.grid(row=0,column=1)
 		admin_password_label.grid(row=3,sticky=E)
 		password_admin.grid(row=3,column=1)
-		loginbutton1.grid(columnspan=2)
+		loginbutton2.grid(columnspan=2)
 
 		admin_menu.mainloop()
 
@@ -218,13 +219,18 @@ def Admin_Opt():
 
 		addbutton=Button(opt_menu,command=add_book,text=" Add books ",bg='light pink',height=1,width=12,font=k_font)
 		delbutton=Button(opt_menu,command=del_book,text=" Remove books ",bg='light blue',height=1,width=12,font=k_font)
-		backbutton=Button(opt_menu,command=login_in,text=" Log out ",bg='light blue',height=1,width=12,font=k_font)
+		backbutton=Button(opt_menu,command=reopen_login,text=" Log out ",bg='light blue',height=1,width=12,font=k_font)
 
 		addbutton.grid(row=4,column=4)
 		delbutton.grid(row=4,column=9)
 		backbutton.grid(row=10,column=6)
 
 		opt_menu.mainloop()
+
+def reopen_login():
+	tkinter.messagebox.showinfo("Login","Admin Logout Successful!")
+	opt_menu.destroy()
+	login_in()
 
 def add_book():
 	global book_name
@@ -475,13 +481,13 @@ def borrow_check():
 				l3 = w2[0] + '|' + w2[1] + '|' + 'N|#'
 				f2.seek(int(w1[1]))
 				f2.write(l3)
+				f2.close()
 				tkinter.messagebox.showinfo("Borrow","The book you have selected has been successfully borrowed. Please return it by:" +'\n'+ str(enddate) )
 
 				buf = id + '|' + bbook + '|#\n'
 				f3 = open('Record.txt', 'a')
 				f3.write(buf)
 				f3.close()
-				f2.close()
 				Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
 				if Done2==True:
 				 	borrow_menu.destroy()
@@ -493,8 +499,6 @@ def borrow_check():
 				tkinter.messagebox.showinfo("Borrow","This book is currently unavailable, please select another book")
 				borrow_menu.lift()
 				break
-
-			#f2.close()
 
 	if(flag == 0):
 		tkinter.messagebox.showinfo("Borrow","The book that you had entered is not in our database,sorry,please enter a different book")
@@ -614,15 +618,18 @@ def return_check():
 							continue
 						else:
 							f3.write(l2)
-					# Done3=tkinter.messagebox.askyesno("Return","Do you want to return another book?")
-					# if Done3==True:
-					# 	return_menu.destroy()
-					# 	return_in()
-					# else:
-					return_menu.destroy()
+					f3.close()
+					Done3=tkinter.messagebox.askyesno("Return","Do you want to return another book?")
+					if Done3==True:
+						return_menu.destroy()
+						return_in()
+					else:
+						return_menu.destroy()
 					break
 				else:
 					tkinter.messagebox.showinfo("This book has been returned, please select another book")
+				f1.close()
+		f.close()
 	else:
 		tkinter.messagebox.showinfo("Return","The book that you had entered is invalid.Please reenter a different book")
 		return_menu.lift()
