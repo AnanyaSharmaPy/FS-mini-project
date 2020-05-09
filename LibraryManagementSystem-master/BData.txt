@@ -1,6 +1,3 @@
-THE HITCHHIKERS GUIDE TO THE GALAXY|Douglas Adams|Y|#
-THIRTEEN REASONS WHY|Jay Asher|N|#
-LION:A LONG WAY HOME|Saroo Brierley|Y|#
-THE HUNGER GAMES|Suzanne Collins,Carolyn McCormick|N|#
-TALES OF THE UNEXPECTED|Roald Dahl|Y|#
-WHERE THE WILD THINGS ARE|Maurice Sendak|Y|#
+12345|QWE|qed|Y|#
+67890|KH|df|Y|#
+34905|GH|fg|Y|#

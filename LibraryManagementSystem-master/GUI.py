@@ -66,7 +66,7 @@ def login_check():
 				break
 			f2.close()
 	f1.close()
-	
+
 	if(flag == False):
 		tkinter.messagebox.showinfo("Login"," The student ID or Password that you have entered is incorrect.Please reenter")
 		return(login_in)
@@ -233,39 +233,50 @@ def reopen_login():
 	login_in()
 
 def add_book():
+	global book_id
 	global book_name
 	global author_name
 	global add_menu
 
 	add_menu=Tk()
 	add_menu.wm_title("Add")
-	add_menu.minsize(250,350)
-	add_menu.maxsize(250,350)
+	add_menu.minsize(300,250)
+	add_menu.maxsize(300,250)
 	add_menu.resizable(0,0)
 	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
 
+	book_id_label=Label(add_menu,text="Book ID (Should be 5 digit)")
 	book_label=Label(add_menu,text="Book Name")
 	author_label=Label(add_menu,text="Author Name")
+	book_id=Entry(add_menu)
 	book_name=Entry(add_menu)
 	author_name=Entry(add_menu)
 	addbutton1=Button(add_menu,command=add_check,text=" Add book ",bg='dark orange',height=1,width=10,font=k_font)
 
-	book_label.grid(row=0,sticky=E)
-	book_name.grid(row=0,column=1)
-	author_label.grid(row=1,sticky=E)
-	author_name.grid(row=1,column=1)
+	book_id_label.grid(row=0,sticky=E)
+	book_id.grid(row=0,column=1)
+	book_label.grid(row=1,sticky=E)
+	book_name.grid(row=1,column=1)
+	author_label.grid(row=2,sticky=E)
+	author_name.grid(row=2,column=1)
 	addbutton1.grid(columnspan=2)
 
 	add_menu.mainloop()
 
 def add_check():
 	global b_id
-
-	b_id=book_name.get().upper()
+	global b_name
+	b_id=book_id.get()
+	b_name=book_name.get().upper()
 	a_id=author_name.get()
 
-	if len(b_id)==0:
+	if len(b_name)==0:
 		tkinter.messagebox.showinfo("Add Book","You did not type a book name O_O")
+		add_menu.lift()
+		return(add_book)
+
+	if len(b_id)!=5 or b_id.isdigit()==False:
+		tkinter.messagebox.showinfo("Add book","Please renter the details(ID should be 5 positive integers)")
 		add_menu.lift()
 		return(add_book)
 
@@ -277,14 +288,15 @@ def add_check():
 		line = line.rstrip('\n')
 		words = line.split('|')
 		if words[0] == b_id:
-			tkinter.messagebox.showinfo("Book","Book already present")
-			add_menu.destroy()
+			tkinter.messagebox.showinfo("Book","Book already present.Please try again")
+			add_menu.lift()
+			return(add_book)
 	f11.close()
 
 	f22 = open ('BData.txt', 'a')
 	pos = f22.tell()
 	f33 = open ('Bindex.txt', 'a')
-	buf = b_id + '|' + a_id + '|' + 'Y' + '|' + '#'
+	buf = b_id+'|'+b_name+'|'+a_id+'|'+'Y'+'|'+'#'
 	f22.write(buf)
 	f22.write('\n')
 	buf = b_id + '|' + str(pos) + '|' + '#'
@@ -297,30 +309,81 @@ def add_check():
 
 
 def del_book():
-	global b_name
+	global rb_id
 	global del_menu
 
 	del_menu=Tk()
 	del_menu.wm_title("Delete")
-	del_menu.minsize(250,350)
-	del_menu.maxsize(250,350)
+	del_menu.minsize(1000,600)
+	del_menu.maxsize(1000,600)
 	del_menu.resizable(0,0)
 	k_font = tkinter.font.Font(family='Times new roman', size=10, weight=tkinter.font.BOLD)
 
-	b_label=Label(del_menu,text="Book Name")
-	b_name=Entry(del_menu)
-	delbutton1=Button(del_menu,command=del_check,text=" Remove book ",bg='dark orange',height=1,width=10,font=k_font)
+	Id=[]
+	Title = []
+	Author = []
+	Availability = []
 
+	f1 = open('Bindex.txt', 'r')
+	f = open ("BData.txt", 'r')
+	norecord = 0
+	for line in f1:
+		if not line.startswith('*'):
+			norecord += 1
+			line = line.rstrip('\n')
+			word = line.split('|')
+			f.seek(int(word[1]))
+			line1 = f.readline().rstrip()
+			word1 = line1.split('|')
+			Id.append(word1[0])
+			Title.append(word1[1])
+			Author.append(word1[2])
+			Availability.append(word1[3])
+	f.close()
+
+	borrow_list=Listbox(del_menu,height=50,width=20)
+	borrow_list2=Listbox(del_menu,height=50,width=50)
+	borrow_list3=Listbox(del_menu,height=50,width=50)
+	borrow_list4=Listbox(del_menu,height=50,width=20)
+
+	for num in range(0,norecord):
+		borrow_list.insert(0,Id[num])
+		borrow_list2.insert(0,Title[num])
+		borrow_list3.insert(0,Author[num])
+		borrow_list4.insert(0,Availability[num])
+
+
+	b_label=Label(del_menu,text="Book ID")
+	rb_id=Entry(del_menu)
+	delbutton1=Button(del_menu,command=del_check,text=" Remove book ",bg='dark orange',height=1,width=10,font=k_font)
+	borrow_list2.configure(background="pink")
+	borrow_list3.configure(background="pink")
+	borrow_list.configure(background="light grey")
+	borrow_list4.configure(background="light grey")
+	borrow_label=Label(del_menu,text="Id")
+	borrow_label2=Label(del_menu,text="Title")
+	borrow_label3=Label(del_menu,text="Author")
+	borrow_label4=Label(del_menu,text="Availability")
+
+	borrow_label.grid(row=6,column=0)
+	borrow_label2.grid(row=6,column=1)
+	borrow_label3.grid(row=6,column=3)
+	borrow_label4.grid(row=6,column=6)
+
+	borrow_list.grid(row=7,column=0)
+	borrow_list2.grid(row=7,column=1)
+	borrow_list3.grid(row=7,column=3)
+	borrow_list4.grid(row=7,column=6)
 	b_label.grid(row=0,sticky=E)
-	b_name.grid(row=0,column=1)
-	delbutton1.grid(columnspan=2)
+	rb_id.grid(row=0,column=1)
+	delbutton1.grid(row=2,columnspan=1)
 
 	del_menu.mainloop()
 
 def del_check():
 
 	global del_id
-	del_id=b_name.get().upper()
+	del_id=rb_id.get()
 
 	if len(del_id)==0:
 		tkinter.messagebox.showinfo("Delete Book","You did not type anything O_O")
@@ -335,7 +398,10 @@ def del_check():
 	for line1 in lines1:
 		l=line1.split('|')
 		if l[0]==del_id:
+			l1='*'+'|'+l[1]+'|#'
 			flag=True
+			f8.write(l1)
+			f8.write('\n')
 			continue
 		else:
 			f8.write(line1)
