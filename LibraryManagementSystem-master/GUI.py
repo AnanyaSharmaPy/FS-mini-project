@@ -7,6 +7,12 @@ import os
 import hashlib
 import binascii
 
+# TODO:
+# 2. add binary search
+# 4. use binary search for searching id when login and when searching/removing/borrow/return books
+	# 5. in search search using book name not id => to do this we'll have to introduce secondary indexing
+	# since only book_id is stored in index file, and we cannnot look for book_name in BData.txt as that isn't updated on book deletion
+
 def login_in():
 	global id_input_login
 	global password_input_login
@@ -129,7 +135,7 @@ def register_check():
 		line = line.rstrip('\n')
 		words = line.split('|')
 		if words[0] == id:
-			tkinter.messagebox.showinfo("Register","Already registered")
+			tkinter.messagebox.showinfo("Register","Already registered. Choose a different ID")
 			register_menu.destroy()
 	f1.close()
 
@@ -144,6 +150,7 @@ def register_check():
 	f3.write('\n')
 	f3.close()
 	f2.close()
+	key_sort('index.txt')
 	tkinter.messagebox.showinfo("Register","Registration Successful!")
 	register_menu.destroy()
 
@@ -230,7 +237,39 @@ def Admin_Opt():
 def reopen_login():
 	tkinter.messagebox.showinfo("Login","Admin Logout Successful!")
 	opt_menu.destroy()
+	
+	flag=False
+	f7=open('Bindex.txt','r')
+	lines1=f7.readlines()
+	f7.close()
+	f8=open('Bindex.txt','w')
+	for line1 in lines1:
+		l=line1.split('|')
+		if l[0]=="*****":
+			continue
+		else:
+			f8.write(line1)
+	f8.close()
+
 	login_in()
+
+
+def key_sort(fname):
+	t=list()
+	fin=open(fname,'r')
+	for line in fin:
+		line=line.rstrip('\n')
+		words=line.split('|')
+		t.append((words[0],words[1]))
+	fin.close()
+	t.sort()
+	with open("temp.txt",'w') as fout:
+		for pkey,addr in t:
+			pack=pkey+"|"+addr+"|#"
+			fout.write(pack+'\n')
+	os.remove(fname)
+	os.rename("temp.txt",fname)
+
 
 def add_book():
 	global book_id
@@ -265,7 +304,6 @@ def add_book():
 
 def add_check():
 	global b_id
-	global b_name
 	b_id=book_id.get()
 	b_name=book_name.get().upper()
 	a_id=author_name.get()
@@ -296,7 +334,7 @@ def add_check():
 	f22 = open ('BData.txt', 'a')
 	pos = f22.tell()
 	f33 = open ('Bindex.txt', 'a')
-	buf = b_id+'|'+b_name+'|'+a_id+'|'+'Y'+'|'+'#'
+	buf = b_id + '|' + b_name + '|' + a_id + '|' + 'Y' + '|' + '#'
 	f22.write(buf)
 	f22.write('\n')
 	buf = b_id + '|' + str(pos) + '|' + '#'
@@ -304,6 +342,7 @@ def add_check():
 	f33.write('\n')
 	f33.close()
 	f22.close()
+	key_sort('Bindex.txt')
 	tkinter.messagebox.showinfo("Add","Book added Successfully!")
 	add_menu.destroy()
 
@@ -390,30 +429,33 @@ def del_check():
 		del_menu.lift()
 		return(del_book)
 
-	flag=False
+	index = -1
 
-	f7=open('Bindex.txt','r')
-	lines1=f7.readlines()
-	f8=open('Bindex.txt','w')
-	for line1 in lines1:
-		l=line1.split('|')
-		if l[0]==del_id:
-			l1='*'+'|'+l[1]+'|#'
-			flag=True
-			f8.write(l1)
-			f8.write('\n')
-			continue
-		else:
-			f8.write(line1)
-	f7.close()
-	f8.close()
-	if flag==True:
+	with open('Bindex.txt','r') as file:
+		for line in file:
+			words=line.split("|")
+			if(words[0]==del_id):
+					index=int(words[1])
+
+	if index == -1:
+		tkinter.messagebox.showinfo("Delete","Book not present.Please reenter")
+		del_menu.destroy()
+		return(del_book)
+	else:
+		index=0
+		with open("Bindex.txt",'r+') as file:
+			line=file.readline()
+			while line:
+				words=line.split("|")
+				if words[0]==del_id:
+					file.seek(index,0)
+					file.write("*****")
+					break
+				else:
+					index=file.tell()
+					line=file.readline()
 		tkinter.messagebox.showinfo("Delete","Book Successfully removed")
 		del_menu.destroy()
-
-	if flag==False:
-		tkinter.messagebox.showinfo("Delete","Book not present.Please reenter")
-		return(del_book)
 
 
 def Main_Menu():
@@ -447,7 +489,7 @@ def Main_Menu():
 	borrow_but=Button(bottomFrame,bg="black",fg="white",text="Borrow books",font=in_font,height=5,width=15,command=borrow_in)
 	return_but=Button(bottomFrame,bg="dark orange",text="Return books",font=in_font,height=5,width=15,command=return_in)
 	search_but=Button(bottomFrame,bg="black",fg="white",text="Search for books",font=in_font,height=5,width=15,command=search_in)
-	feedback_but=Button(bottomFrame,bg="dark orange",fg="white",text="Feedback",font=in_font,height=5,width=15,command=feedback_in)
+	feedback_but=Button(bottomFrame,bg="dark orange",text="Feedback",font=in_font,height=5,width=15,command=feedback_in)
 
 	#Positioning of buttons
 	borrow_but.pack(side=LEFT)
@@ -466,9 +508,10 @@ def borrow_in():
 
 	borrow_menu.wm_title("Borrow")
 	borrow_menu.minsize(900,550)
-	borrow_menu.maxsize(900,550)
+	borrow_menu.maxsize(1200,550)
 	borrow_menu.resizable(0,0)
 
+	Id=[]
 	Title = []
 	Author = []
 	Availability = []
@@ -483,24 +526,29 @@ def borrow_in():
 		f.seek(int(word[1]))
 		line1 = f.readline().rstrip()
 		word1 = line1.split('|')
-		Title.append(word1[0])
-		Author.append(word1[1])
-		Availability.append(word1[2])
+		Id.append(word1[0])
+		Title.append(word1[1])
+		Author.append(word1[2])
+		Availability.append(word1[3])
 	f.close()
 
-	borrow_list=Listbox(borrow_menu,height=50,width=50)
+	borrow_list=Listbox(borrow_menu,height=50,width=20)
+	borrow_list1=Listbox(borrow_menu,height=50,width=50)
 	borrow_list2=Listbox(borrow_menu,height=50,width=50)
-	borrow_list3=Listbox(borrow_menu,height=50,width=50)
+	borrow_list3=Listbox(borrow_menu,height=50,width=20)
 
 	for num in range(0,norecord):
-		borrow_list.insert(0,Title[num])
+		borrow_list.insert(0,Id[num])
+		borrow_list1.insert(0,Title[num])
 		borrow_list2.insert(0,Author[num])
 		borrow_list3.insert(0,Availability[num])
 
-	borrow_list.configure(background="pink")
+	borrow_list.configure(background="light grey")
+	borrow_list1.configure(background="pink")
 	borrow_list2.configure(background="pink")
 	borrow_list3.configure(background="light grey")
 	borrow_label1=Label(borrow_menu,text="<<< Please enter the book title that you wish to borrow >>>",font=("Times", "20","bold","italic"),bg="light blue")
+	borrow_label=Label(borrow_menu,text="Id")
 	borrow_label2=Label(borrow_menu,text="Title")
 	borrow_label3=Label(borrow_menu,text="Author")
 	borrow_label4=Label(borrow_menu,text="Availability")
@@ -509,67 +557,80 @@ def borrow_in():
 	borrow_button1=Button(borrow_menu,text="Borrow",command=borrow_check,font=("Times new roman","10","bold"),bg="light blue")
 
 	borrow_label1.grid(row=0,columnspan=20)
+	borrow_label.grid(row=3,column=0)
 	borrow_label2.grid(row=3,column=1)
 	borrow_label3.grid(row=3,column=4)
 	borrow_label4.grid(row=3,column=7)
 
 	borrow_entry1.grid(row=1,columnspan=20)
 	borrow_button1.grid(row=2,columnspan=20)
-	borrow_list.grid(row=4,column=1)
+	borrow_list.grid(row=4,column=0)
+	borrow_list1.grid(row=4,column=1)
 	borrow_list2.grid(row=4,column=4)
 	borrow_list3.grid(row=4,column=7)
 	borrow_menu.mainloop()
 
 def borrow_check():
 
-	f1 = open("Bindex.txt", 'r')
-	date = datetime.date.today()
-	enddate = date + timedelta(days = 7)
-	bbook=borrow_entry1.get().upper()
-	flag = 0
+	count = 0
+	f = open('Record.txt', 'r')
+	for l in f:
+		l = l.split('|')
+		if l[0] ==  id:
+			count += 1
+	if count >= 3:
+		tkinter.messagebox.showinfo("Borrow", "Cannot borrow more than 3 books")
+		borrow_menu.destroy()
 
-	if len(bbook) == 0:
-		tkinter.messagebox.showinfo("Borrow","You did not type anything O_O")
-		borrow_menu.lift()
-		return(borrow_in)
+	else:
+		f1 = open("Bindex.txt", 'r')
+		date = datetime.date.today()
+		enddate = date + timedelta(days = 7)
+		bbook=borrow_entry1.get().upper()
+		flag = 0
 
-	for l1 in f1:
-		l1 = l1.rstrip('\n')
-		w1 = l1.split('|')
-		if(w1[0] == bbook):
-			flag = 1
-			f2 = open('BData.txt', 'r+')
-			f2.seek(int(w1[1]))
-			l2 = f2.readline()
-			l2 = l2.rstrip('\n')
-			w2 = l2.split('|')
-			if(w2[2] == 'Y'):
-				l3 = w2[0] + '|' + w2[1] + '|' + 'N|#'
+		if len(bbook) == 0:
+			tkinter.messagebox.showinfo("Borrow","You did not type anything O_O")
+			borrow_menu.lift()
+			return(borrow_in)
+
+		for l1 in f1:
+			l1 = l1.rstrip('\n')
+			w1 = l1.split('|')
+			if(w1[0] == bbook):
+				flag = 1
+				f2 = open('BData.txt', 'r+')
 				f2.seek(int(w1[1]))
-				f2.write(l3)
-				f2.close()
-				tkinter.messagebox.showinfo("Borrow","The book you have selected has been successfully borrowed. Please return it by:" +'\n'+ str(enddate) )
+				l2 = f2.readline()
+				l2 = l2.rstrip('\n')
+				w2 = l2.split('|')
+				if(w2[3] == 'Y'):
+					l3 = w2[0] + '|' + w2[1] + '|' + w2[2] + '|' + 'N|#'
+					f2.seek(int(w1[1]))
+					f2.write(l3)
+					f2.close()
+					tkinter.messagebox.showinfo("Borrow","The book you have selected has been successfully borrowed. Please return it by:" +'\n'+ str(enddate) )
 
-				buf = id + '|' + bbook + '|#\n'
-				f3 = open('Record.txt', 'a')
-				f3.write(buf)
-				f3.close()
-				Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
-				if Done2==True:
-				 	borrow_menu.destroy()
-				 	borrow_in()
+					buf = id + '|' + bbook + '|#\n'
+					f3 = open('Record.txt', 'a')
+					f3.write(buf)
+					f3.close()
+					Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
+					if Done2==True:
+						borrow_menu.destroy()
+						borrow_in()
+					else:
+						borrow_menu.destroy()
+					break
 				else:
-					borrow_menu.destroy()
-				break
-			else:
-				tkinter.messagebox.showinfo("Borrow","This book is currently unavailable, please select another book")
-				borrow_menu.lift()
-				break
+					tkinter.messagebox.showinfo("Borrow","This book is currently unavailable, please select another book")
+					borrow_menu.lift()
+					break
 
-	if(flag == 0):
-		tkinter.messagebox.showinfo("Borrow","The book that you had entered is not in our database,sorry,please enter a different book")
-		borrow_menu.lift()
-	f1.close()
+		if(flag == 0):
+			tkinter.messagebox.showinfo("Borrow","The book that you had entered is not in our database,sorry,please enter a different book")
+			borrow_menu.lift()
+		f1.close()
 
 
 def return_in():
@@ -579,10 +640,11 @@ def return_in():
 
 	return_menu=Tk()
 	return_menu.minsize(900,500)
-	return_menu.maxsize(900,500)
+	return_menu.maxsize(1200,500)
 	return_menu.wm_title("Return")
 	return_menu.resizable(0,0)
 
+	Id=[]
 	Title = []
 	Author = []
 	Availability = []
@@ -605,26 +667,31 @@ def return_in():
 					l1 = f2.readline()
 					l1 = l1.rstrip()
 					w1 = l1.split('|')
-					Title.append(w1[0])
+					Id.append(w1[0])
+					Title.append(w1[1])
 					record_verification.append(w1[0])
-					Author.append(w1[1])
-					Availability.append(w1[2])
+					Author.append(w1[2])
+					Availability.append(w1[3])
 			f1.close()
 			f2.close()
 	f.close()
 
-	return_list=Listbox(return_menu,height=50,width=50)
+	return_list=Listbox(return_menu,height=50,width=20)
+	return_list1=Listbox(return_menu,height=50,width=50)
 	return_list2=Listbox(return_menu,height=50,width=50)
-	return_list3=Listbox(return_menu,height=50,width=50)
+	return_list3=Listbox(return_menu,height=50,width=00)
 
 	for num in range(0,norecord):
-		return_list.insert(0,Title[num])
+		return_list.insert(0,Id[num])
+		return_list1.insert(0,Title[num])
 		return_list2.insert(0,Author[num])
 		return_list3.insert(0,Availability[num])
 
-	return_list.configure(background="pink")
+	return_list.configure(background="light grey")
+	return_list1.configure(background="pink")
 	return_list2.configure(background="pink")
 	return_list3.configure(background="light grey")
+	return_label=Label(return_menu,text="Id")
 	return_label2=Label(return_menu,text="Title")
 	return_label3=Label(return_menu,text="Author")
 	return_label4=Label(return_menu,text="Availability")
@@ -636,11 +703,13 @@ def return_in():
 	return_entry1.grid(row=1,columnspan=20)
 	return_button1.grid(row=2,columnspan=20)
 
+	return_label.grid(row=3,column=0)
 	return_label2.grid(row=3,column=1)
 	return_label3.grid(row=3,column=4)
 	return_label4.grid(row=3,column=7)
 
-	return_list.grid(row=4,column=1)
+	return_list.grid(row=4,column=0)
+	return_list1.grid(row=4,column=1)
 	return_list2.grid(row=4,column=4)
 	return_list3.grid(row=4,column=7)
 
@@ -668,10 +737,10 @@ def return_check():
 				f1.seek(int(w[1]))
 				l1 = f1.readline().rstrip()
 				w1 = l1.split('|')
-				if(w1[2] == 'N'):
+				if(w1[3] == 'N'):
 					tkinter.messagebox.showinfo("Return","The book you have selected has been successfully returned on"+'\n'+str(date))
 					f1.seek(int(w[1]))
-					line = w1[0] + '|' + w1[1] + '|Y|#'
+					line = w1[0] + '|' + w1[1] + '|' + w1[2] + '|Y|#'
 					f1.write(line)
 
 					f2=open('Record.txt','r')
@@ -687,6 +756,7 @@ def return_check():
 					f3.close()
 					Done3=tkinter.messagebox.askyesno("Return","Do you want to return another book?")
 					if Done3==True:
+						f1.close()
 						return_menu.destroy()
 						return_in()
 					else:
@@ -751,7 +821,7 @@ def search_check():
 			w1 = l1.split('|')
 			book = w1[0]
 			author = w1[1]
-			if(w1[2] == 'Y'):
+			if(w1[3] == 'Y'):
 				availability = 'Available'
 			else:
 				availability = 'Unavailable'
