@@ -8,10 +8,8 @@ import hashlib
 import binascii
 
 # TODO:
-# 2. add binary search
-# 4. use binary search for searching id when login and when searching/removing/borrow/return books
-	# 5. in search search using book name not id => to do this we'll have to introduce secondary indexing
-	# since only book_id is stored in index file, and we cannnot look for book_name in BData.txt as that isn't updated on book deletion
+# 5. in search search using book name not id => to do this we'll have to introduce secondary indexing
+# since only book_id is stored in index file, and we cannnot look for book_name in BData.txt as that isn't updated on book deletion
 
 def login_in():
 	global id_input_login
@@ -51,31 +49,24 @@ def login_check():
 	id=id_input_login.get()
 	password=password_input_login.get()
 
-	f1 = open ('index.txt', 'r')
-
-	flag = False
-	for line in f1:
-		line = line.rstrip('\n')
-		words = line.split('|')
-		if(words[0] == id):
-			f2 = open ('Userprofile.txt', 'r')
-			pos = words[1]
-			f2.seek(int(pos))
-			l = f2.readline()
-			l = l.rstrip('\n')
-			word = l.split('|')
-			if(verify_password(word[1], password)):
-				flag = True
-				tkinter.messagebox.showinfo("Login","Login Successful!")
-				login_menu.destroy()
-				Main_Menu()
-				break
-			f2.close()
-	f1.close()
-
-	if(flag == False):
-		tkinter.messagebox.showinfo("Login"," The student ID or Password that you have entered is incorrect.Please reenter")
+	pos = binary_search('index.txt', id)
+	if pos == -1:
+		tkinter.messagebox.showinfo("Login"," Username is incorrect.Please reenter")
 		return(login_in)
+	else:
+		f2 = open ('Userprofile.txt', 'r')
+		f2.seek(int(pos))
+		l = f2.readline()
+		l = l.rstrip()
+		word = l.split('|')
+		if(verify_password(word[1], password)):
+			tkinter.messagebox.showinfo("Login","Login Successful!")
+			login_menu.destroy()
+			Main_Menu()
+		else:
+			tkinter.messagebox.showinfo("Login"," Password that you have entered is incorrect.Please reenter")
+			return(login_in)
+		f2.close()
 
 
 def register_in():
@@ -130,14 +121,10 @@ def register_check():
 		register_menu.lift()
 		return(register_in)
 
-	f1 = open('index.txt', 'r')
-	for line in f1:
-		line = line.rstrip('\n')
-		words = line.split('|')
-		if words[0] == id:
-			tkinter.messagebox.showinfo("Register","Already registered. Choose a different ID")
-			register_menu.destroy()
-	f1.close()
+	pos = binary_search('index.txt', id)
+	if pos != -1:
+		tkinter.messagebox.showinfo("Register","Already registered. Choose a different ID")
+		register_menu.destroy()
 
 	f2 = open ('Userprofile.txt', 'a')
 	pos = f2.tell()
@@ -238,14 +225,12 @@ def reopen_login():
 	tkinter.messagebox.showinfo("Login","Admin Logout Successful!")
 	opt_menu.destroy()
 	
-	flag=False
 	f7=open('Bindex.txt','r')
 	lines1=f7.readlines()
 	f7.close()
 	f8=open('Bindex.txt','w')
 	for line1 in lines1:
-		l=line1.split('|')
-		if l[0]=="*****":
+		if line1.startswith('*'):
 			continue
 		else:
 			f8.write(line1)
@@ -269,6 +254,27 @@ def key_sort(fname):
 			fout.write(pack+'\n')
 	os.remove(fname)
 	os.rename("temp.txt",fname)
+
+
+def binary_search(fname, search_key):
+	t = []
+	fin = open(fname,'r')
+	for lx in fin:
+		lx = lx.rstrip()
+		wx = lx.split('|')
+		t.append((wx[0], wx[1]))
+	fin.close()
+	l = 0
+	r = len(t) - 1
+	while l <= r:
+		mid = (l + r)//2
+		if t[mid][0] == search_key:
+			return int(t[mid][1])
+		elif t[mid][0] <= search_key:
+			l = mid + 1
+		else:
+			r = mid - 1
+	return -1
 
 
 def add_book():
@@ -321,15 +327,11 @@ def add_check():
 	if len(a_id) == 0:
 		a_id = "Anonymous"
 
-	f11 = open('Bindex.txt', 'r')
-	for line in f11:
-		line = line.rstrip('\n')
-		words = line.split('|')
-		if words[0] == b_id:
-			tkinter.messagebox.showinfo("Book","Book already present.Please try again")
-			add_menu.lift()
-			return(add_book)
-	f11.close()
+	pos = binary_search('Bindex.txt', b_id)
+	if pos != -1:
+		tkinter.messagebox.showinfo("Book","Book already present.Please try again")
+		add_menu.lift()
+		return(add_book)
 
 	f22 = open ('BData.txt', 'a')
 	pos = f22.tell()
@@ -429,6 +431,21 @@ def del_check():
 		del_menu.lift()
 		return(del_book)
 
+	pos = binary_search('Bindex.txt', del_id)
+	if(pos == -1):
+		tkinter.messagebox.showinfo("Delete","Book not present.Please reenter")
+		del_menu.destroy()
+		return(del_book)
+	else:
+		f = open ('BData.txt', 'r')
+		f.seek(pos)
+		l1 = f.readline().rstrip()
+		w1 = l1.split('|')
+		if(w1[3] == 'N'):
+			tkinter.messagebox.showinfo("Delete","Book currently borrowed. Please try another book")
+			del_menu.destroy()
+			return(del_book)
+
 	index = -1
 
 	with open('Bindex.txt','r') as file:
@@ -437,25 +454,20 @@ def del_check():
 			if(words[0]==del_id):
 					index=int(words[1])
 
-	if index == -1:
-		tkinter.messagebox.showinfo("Delete","Book not present.Please reenter")
-		del_menu.destroy()
-		return(del_book)
-	else:
-		index=0
-		with open("Bindex.txt",'r+') as file:
-			line=file.readline()
-			while line:
-				words=line.split("|")
-				if words[0]==del_id:
-					file.seek(index,0)
-					file.write("*****")
-					break
-				else:
-					index=file.tell()
-					line=file.readline()
-		tkinter.messagebox.showinfo("Delete","Book Successfully removed")
-		del_menu.destroy()
+	index=0
+	with open("Bindex.txt",'r+') as file:
+		line=file.readline()
+		while line:
+			words=line.split("|")
+			if words[0]==del_id:
+				file.seek(index,0)
+				file.write("*")
+				break
+			else:
+				index=file.tell()
+				line=file.readline()
+	tkinter.messagebox.showinfo("Delete","Book Successfully removed")
+	del_menu.destroy()
 
 
 def Main_Menu():
@@ -464,7 +476,6 @@ def Main_Menu():
 	base.wm_title("CENTRAL LIBRARY")
 	base.minsize(600,600)
 
-	but_font = tkinter.font.Font(family='Helvetica', size=15, weight=tkinter.font.BOLD)
 	in_font = tkinter.font.Font(family='Lucida Calligraphy', size=15, weight=tkinter.font.BOLD)
 	current_time1=datetime.datetime.now()
 	current_time=str(current_time1)
@@ -583,54 +594,46 @@ def borrow_check():
 		borrow_menu.destroy()
 
 	else:
-		f1 = open("Bindex.txt", 'r')
 		date = datetime.date.today()
 		enddate = date + timedelta(days = 7)
 		bbook=borrow_entry1.get().upper()
-		flag = 0
 
 		if len(bbook) == 0:
 			tkinter.messagebox.showinfo("Borrow","You did not type anything O_O")
 			borrow_menu.lift()
 			return(borrow_in)
 
-		for l1 in f1:
-			l1 = l1.rstrip('\n')
-			w1 = l1.split('|')
-			if(w1[0] == bbook):
-				flag = 1
-				f2 = open('BData.txt', 'r+')
-				f2.seek(int(w1[1]))
-				l2 = f2.readline()
-				l2 = l2.rstrip('\n')
-				w2 = l2.split('|')
-				if(w2[3] == 'Y'):
-					l3 = w2[0] + '|' + w2[1] + '|' + w2[2] + '|' + 'N|#'
-					f2.seek(int(w1[1]))
-					f2.write(l3)
-					f2.close()
-					tkinter.messagebox.showinfo("Borrow","The book you have selected has been successfully borrowed. Please return it by:" +'\n'+ str(enddate) )
-
-					buf = id + '|' + bbook + '|#\n'
-					f3 = open('Record.txt', 'a')
-					f3.write(buf)
-					f3.close()
-					Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
-					if Done2==True:
-						borrow_menu.destroy()
-						borrow_in()
-					else:
-						borrow_menu.destroy()
-					break
-				else:
-					tkinter.messagebox.showinfo("Borrow","This book is currently unavailable, please select another book")
-					borrow_menu.lift()
-					break
-
-		if(flag == 0):
+		pos = binary_search('Bindex.txt', bbook)
+		if pos == -1:
 			tkinter.messagebox.showinfo("Borrow","The book that you had entered is not in our database,sorry,please enter a different book")
 			borrow_menu.lift()
-		f1.close()
+		else:
+			f2 = open('BData.txt', 'r+')
+			f2.seek(pos)
+			l2 = f2.readline()
+			l2 = l2.rstrip('\n')
+			w2 = l2.split('|')
+			if(w2[3] == 'Y'):
+				l3 = w2[0] + '|' + w2[1] + '|' + w2[2] + '|' + 'N|#'
+				f2.seek(pos)
+				f2.write(l3)
+				f2.close()
+				tkinter.messagebox.showinfo("Borrow","The book you have selected has been successfully borrowed. Please return it by:" +'\n'+ str(enddate) )
+
+				buf = id + '|' + bbook + '|#\n'
+				f3 = open('Record.txt', 'a')
+				f3.write(buf)
+				f3.close()
+				key_sort('Record.txt')
+				Done2=tkinter.messagebox.askyesno("Borrow","Do you want to borrow another book?")
+				if Done2==True:
+					borrow_menu.destroy()
+					borrow_in()
+				else:
+					borrow_menu.destroy()
+			else:
+				tkinter.messagebox.showinfo("Borrow","This book is currently unavailable, please select another book")
+				borrow_menu.lift()
 
 
 def return_in():
@@ -656,30 +659,25 @@ def return_in():
 		line = line.rstrip()
 		words = line.split('|')
 		if(words[0] == id):
-			f1 = open('Bindex.txt', 'r')
-			f2 = open('BData.txt', 'r')
-			for l in f1:
-				l = l.rstrip('\n')
-				w = l.split('|')
-				if(w[0] == words[1]):
-					norecord += 1
-					f2.seek(int(w[1]))
-					l1 = f2.readline()
-					l1 = l1.rstrip()
-					w1 = l1.split('|')
-					Id.append(w1[0])
-					Title.append(w1[1])
-					record_verification.append(w1[0])
-					Author.append(w1[2])
-					Availability.append(w1[3])
-			f1.close()
-			f2.close()
+			pos = binary_search('Bindex.txt', words[1])
+			if pos != -1:
+				norecord += 1
+				f2 = open('BData.txt', 'r')
+				f2.seek(pos)
+				l1 = f2.readline()
+				l1 = l1.rstrip()
+				w1 = l1.split('|')
+				Id.append(w1[0])
+				record_verification.append(w1[0])
+				Title.append(w1[1])
+				Author.append(w1[2])
+				Availability.append(w1[3])
 	f.close()
 
 	return_list=Listbox(return_menu,height=50,width=20)
 	return_list1=Listbox(return_menu,height=50,width=50)
 	return_list2=Listbox(return_menu,height=50,width=50)
-	return_list3=Listbox(return_menu,height=50,width=00)
+	return_list3=Listbox(return_menu,height=50,width=20)
 
 	for num in range(0,norecord):
 		return_list.insert(0,Id[num])
@@ -728,44 +726,39 @@ def return_check():
 		return(return_in)
 
 	if(bbook in record_verification):
-		f = open('Bindex.txt', 'r')
-		for l in f:
-			l = l.rstrip()
-			w = l.split('|')
-			if(w[0] == bbook):
-				f1 = open('BData.txt', 'r+')
-				f1.seek(int(w[1]))
-				l1 = f1.readline().rstrip()
-				w1 = l1.split('|')
-				if(w1[3] == 'N'):
-					tkinter.messagebox.showinfo("Return","The book you have selected has been successfully returned on"+'\n'+str(date))
-					f1.seek(int(w[1]))
-					line = w1[0] + '|' + w1[1] + '|' + w1[2] + '|Y|#'
-					f1.write(line)
+		pos = binary_search('Bindex.txt', bbook)
+		if pos != -1:
+			f1 = open('BData.txt', 'r+')
+			f1.seek(pos)
+			l1 = f1.readline().rstrip()
+			w1 = l1.split('|')
+			if(w1[3] == 'N'):
+				tkinter.messagebox.showinfo("Return","The book you have selected has been successfully returned on"+'\n'+str(date))
+				f1.seek(pos)
+				line = w1[0] + '|' + w1[1] + '|' + w1[2] + '|Y|#'
+				f1.write(line)
 
-					f2=open('Record.txt','r')
-					lines=f2.readlines()
-					f2.close()
-					f3=open('Record.txt','w')
-					for l2 in lines:
-						l3=l2.split('|')
-						if l3[1] == bbook and l3[0] == id:
-							continue
-						else:
-							f3.write(l2)
-					f3.close()
-					Done3=tkinter.messagebox.askyesno("Return","Do you want to return another book?")
-					if Done3==True:
-						f1.close()
-						return_menu.destroy()
-						return_in()
+				f2=open('Record.txt','r')
+				lines=f2.readlines()
+				f2.close()
+				f3=open('Record.txt','w')
+				for l2 in lines:
+					l3=l2.split('|')
+					if l3[1] == bbook and l3[0] == id:
+						continue
 					else:
-						return_menu.destroy()
-					break
+						f3.write(l2)
+				f3.close()
+				Done3=tkinter.messagebox.askyesno("Return","Do you want to return another book?")
+				if Done3==True:
+					f1.close()
+					return_menu.destroy()
+					return_in()
 				else:
-					tkinter.messagebox.showinfo("This book has been returned, please select another book")
-				f1.close()
-		f.close()
+					return_menu.destroy()
+			else:
+				tkinter.messagebox.showinfo("This book has been returned, please select another book")
+			f1.close()
 	else:
 		tkinter.messagebox.showinfo("Return","The book that you had entered is invalid.Please reenter a different book")
 		return_menu.lift()
@@ -794,7 +787,6 @@ def search_in():
 
 
 def search_check():
-	f1 = open ('Bindex.txt', 'r')
 	search_word=search_entry.get().upper()
 	search_menu.destroy()
 
@@ -802,41 +794,38 @@ def search_check():
 		tkinter.messagebox.showinfo("Search","You did not type anything O_O")
 		return(search_in)
 
-	pos = -1
-	for l in f1:
-		l = l.rstrip('\n')
-		w = l.split('|')
-		if(w[0] == search_word):
-			pos = int(w[1])
-			search_menu2=Tk()
-			search_menu2.wm_title("Search")
-			search_menu2.attributes("-topmost",True)
-			tkinter.messagebox.showinfo("Search","It is in our database!")
-
-			search_result=Listbox(search_menu2,height=10,width=50)
-			f2 = open('BData.txt', 'r')
-			f2.seek(pos)
-			l1 = f2.readline()
-			l1 = l1.rstrip('\n')
-			w1 = l1.split('|')
-			book = w1[0]
-			author = w1[1]
-			if(w1[3] == 'Y'):
-				availability = 'Available'
-			else:
-				availability = 'Unavailable'
-			f2.close()
-
-			search_result.insert(1,"Name:" + book)
-			search_result.insert(2,"Author:" +author)
-			search_result.insert(3,"Availability:" +availability)
-
-			search_result.pack()
-			search_menu2.mainloop()
-	f1.close()
+	pos = binary_search('Bindex.txt', search_word)
 
 	if (pos == -1):
 		tkinter.messagebox.showinfo("Search","Sorry,this book does not exist in our database")
+	else:
+		search_menu2=Tk()
+		search_menu2.wm_title("Search")
+		search_menu2.attributes("-topmost",True)
+		tkinter.messagebox.showinfo("Search","It is in our database!")
+
+		search_result=Listbox(search_menu2,height=10,width=50)
+		f2 = open('BData.txt', 'r')
+		f2.seek(pos)
+		l1 = f2.readline()
+		l1 = l1.rstrip()
+		w1 = l1.split('|')
+		b_id = w1[0]
+		book = w1[1]
+		author = w1[2]
+		if(w1[3] == 'Y'):
+			availability = 'Available'
+		else:
+			availability = 'Unavailable'
+		f2.close()
+
+		search_result.insert(1,"ID:" + b_id)
+		search_result.insert(2,"Name:" + book)
+		search_result.insert(3,"Author:" + author)
+		search_result.insert(4,"Availability:" + availability)
+
+		search_result.pack()
+		search_menu2.mainloop()
 
 
 def feedback_in():
