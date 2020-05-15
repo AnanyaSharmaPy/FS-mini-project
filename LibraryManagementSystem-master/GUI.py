@@ -224,7 +224,7 @@ def Admin_Opt():
 def reopen_login():
 	tkinter.messagebox.showinfo("Login","Admin Logout Successful!")
 	opt_menu.destroy()
-	
+
 	f7=open('Bindex.txt','r')
 	lines1=f7.readlines()
 	f7.close()
@@ -558,7 +558,7 @@ def borrow_in():
 	borrow_list1.configure(background="pink")
 	borrow_list2.configure(background="pink")
 	borrow_list3.configure(background="light grey")
-	borrow_label1=Label(borrow_menu,text="<<< Please enter the book title that you wish to borrow >>>",font=("Times", "20","bold","italic"),bg="light blue")
+	borrow_label1=Label(borrow_menu,text="<<< Please enter the BOOK ID that you wish to borrow >>>",font=("Times", "20","bold","italic"),bg="light blue")
 	borrow_label=Label(borrow_menu,text="Id")
 	borrow_label2=Label(borrow_menu,text="Title")
 	borrow_label3=Label(borrow_menu,text="Author")
@@ -696,7 +696,7 @@ def return_in():
 
 	return_button1=Button(return_menu,text="Return",command=return_check,font=("Times new roman","10","bold"),bg="dark orange")
 	return_entry1=Entry(return_menu,width=50)
-	return_label1=Label(return_menu,text=" Please enter the book title that you wish to return ",font=("Times", "12","bold","italic"),bg="light blue")
+	return_label1=Label(return_menu,text=" Please enter the BOOK ID that you wish to return ",font=("Times", "12","bold","italic"),bg="light blue")
 	return_label1.grid(row=0,columnspan=20)
 	return_entry1.grid(row=1,columnspan=20)
 	return_button1.grid(row=2,columnspan=20)
