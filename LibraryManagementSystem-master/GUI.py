@@ -7,9 +7,6 @@ import os
 import hashlib
 import binascii
 
-# TODO:
-# 5. in search search using book name not id => to do this we'll have to introduce secondary indexing
-# since only book_id is stored in index file, and we cannnot look for book_name in BData.txt as that isn't updated on book deletion
 
 def login_in():
 	global id_input_login
